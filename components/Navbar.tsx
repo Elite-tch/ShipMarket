@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ClientWalletButton } from "./ClientWalletButton";
-
+import Image from "next/image";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { SHIP_TOKEN_MINT } from "@/lib/anchor";
 import { PublicKey } from "@solana/web3.js";
@@ -29,17 +29,7 @@ export function Navbar() {
             console.log("Mint in code:", SHIP_TOKEN_MINT.toBase58());
 
             try {
-                // 1. Surgical Direct Link for the user's confirmed account
-                if (publicKey.toBase58() === "88G5iPXHhwRnmdEcVckTBD8ny1M7cD3n5rdk9QD1ingn") {
-                    const directAcc = new PublicKey("AAUjUReHMXzjKWqUB7ZJMw8napsWJFGqXtJonyK4bhDT");
-                    const bal = await connection.getTokenAccountBalance(directAcc, 'confirmed');
-                    if (bal.value && bal.value.uiAmountString) {
-                        setBalance(Number(bal.value.uiAmountString));
-                        return;
-                    }
-                }
-
-                // 2. Try Standard ATA derivation (checking both potential programs)
+                // Try Standard ATA derivation (checking both potential programs)
                 const [ataStd, ata2022] = await Promise.all([
                     getAssociatedTokenAddress(SHIP_TOKEN_MINT, publicKey, false, TOKEN_PROGRAM_ID),
                     getAssociatedTokenAddress(SHIP_TOKEN_MINT, publicKey, false, TOKEN_2022_PROGRAM_ID)
@@ -77,9 +67,9 @@ export function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     <div className="flex items-center">
-                        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-                            <div className="w-8 h-8 rounded-full bg-brand flex items-center justify-center">
-                                <span className="text-white font-bold text-xl">S</span>
+                        <Link href="/" className="flex items-center  flex-shrink-0">
+                            <div className="w-12 h-12 flex items-center justify-center">
+                                <Image src="/logo.png" alt="Ship" width={30} height={30} />
                             </div>
                             <span className="font-bold text-xl tracking-tight text-gray-900 dark:text-white">
                                 ShipMarket
@@ -93,10 +83,16 @@ export function Navbar() {
                                 Marketplace
                             </Link>
                             <Link
-                                href="/admin"
-                                className="text-brand font-black px-3 py-2 rounded-md text-sm uppercase tracking-widest hover:opacity-80 transition-all"
+                                href="/vault"
+                                className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
                             >
-                                Admin
+                                My Inventory
+                            </Link>
+                            <Link
+                                href="/admin"
+                                className="text-brand font-black px-3 py-2 rounded-md text-sm uppercase tracking-widest hover:opacity-80 transition-all border border-brand/20 ml-4 shadow-sm"
+                            >
+                                Creator Hub
                             </Link>
                         </div>
                     </div>

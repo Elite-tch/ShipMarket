@@ -70,16 +70,6 @@ export default function MarketplacePage() {
         const fetchBalance = async () => {
             if (!wallet) return;
             try {
-                // Surgical Direct Link for the user's confirmed account
-                if (wallet.publicKey.toBase58() === "88G5iPXHhwRnmdEcVckTBD8ny1M7cD3n5rdk9QD1ingn") {
-                    const directAcc = new PublicKey("AAUjUReHMXzjKWqUB7ZJMw8napsWJFGqXtJonyK4bhDT");
-                    const directRes = await connection.getTokenAccountBalance(directAcc, 'confirmed');
-                    if (directRes.value.uiAmount !== null) {
-                        setShipBalance(directRes.value.uiAmount);
-                        return;
-                    }
-                }
-
                 const [ataStandard, ata2022] = await Promise.all([
                     getAssociatedTokenAddress(SHIP_TOKEN_MINT, wallet.publicKey, false, TOKEN_PROGRAM_ID),
                     getAssociatedTokenAddress(SHIP_TOKEN_MINT, wallet.publicKey, false, TOKEN_2022_PROGRAM_ID)
@@ -128,7 +118,7 @@ export default function MarketplacePage() {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                         <div>
                             <div className="text-[10px] font-black text-brand uppercase tracking-[0.4em] mb-4 opacity-70">Powered by $SHIP</div>
-                            <h1 className="text-6xl md:text-7xl font-black italic tracking-tighter text-white uppercase">
+                            <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-white uppercase">
                                 SHIP Marketplace
                             </h1>
                             <p className="text-gray-400 font-medium mt-4 max-w-md text-sm leading-relaxed">
@@ -178,7 +168,7 @@ export default function MarketplacePage() {
                 {loading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 border border-gray-100 dark:border-zinc-800 animate-pulse h-72" />
+                            <div key={i} className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-gray-100 dark:border-zinc-800 animate-pulse h-72" />
                         ))}
                     </div>
                 ) : filtered.length === 0 ? (
@@ -202,11 +192,15 @@ export default function MarketplacePage() {
                             const saved = product.priceShip - finalPrice;
                             return (
                                 <Link key={product.id} href={`/marketplace/${product.id}`} className="group">
-                                    <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-gray-100 dark:border-zinc-800 overflow-hidden hover:border-brand/30 hover:shadow-xl hover:shadow-brand/5 transition-all duration-300 group-hover:-translate-y-1 h-full flex flex-col">
+                                    <div className="bg-white dark:bg-zinc-900 rounded border border-gray-100 dark:border-zinc-800 overflow-hidden hover:border-brand/30 hover:shadow-xl hover:shadow-brand/5 transition-all duration-300  h-full flex flex-col">
                                         {/* Cover */}
-                                        <div className="bg-gradient-to-br from-zinc-100 to-zinc-50 dark:from-zinc-800 dark:to-zinc-900 p-8 flex items-center justify-center text-6xl relative">
-                                            {product.icon}
-                                            <div className="absolute top-4 right-4">
+                                        <div className="bg-gradient-to-br from-zinc-100 to-zinc-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center text-6xl relative h-48 overflow-hidden  transition-transform duration-500">
+                                            {product.coverImage ? (
+                                                <img src={product.coverImage} className="w-full h-full object-cover" alt={product.title} />
+                                            ) : (
+                                                product.icon
+                                            )}
+                                            <div className="absolute top-0 right-4 z-10">
                                                 <span className="text-[9px] font-black px-3 py-1.5 rounded-full bg-zinc-900/80 text-white uppercase tracking-wider">
                                                     {CATEGORIES.find(c => c.id === product.category)?.emoji} {product.category}
                                                 </span>
@@ -214,7 +208,7 @@ export default function MarketplacePage() {
                                         </div>
 
                                         {/* Content */}
-                                        <div className="p-6 flex flex-col flex-1">
+                                        <div className="p-4 flex flex-col flex-1">
                                             <h3 className="font-black text-gray-900 dark:text-white text-base uppercase tracking-tight leading-tight mb-2 line-clamp-2">
                                                 {product.title}
                                             </h3>
@@ -253,42 +247,9 @@ export default function MarketplacePage() {
                             );
                         })}
                     </div>
+
                 )}
 
-                {/* Discount Tiers Info */}
-                <div className="bg-zinc-900 rounded-[3rem] p-10 md:p-14 border border-white/5">
-                    <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-2">Hold More. Pay Less.</h2>
-                    <p className="text-sm text-gray-400 font-medium mb-10 max-w-lg">
-                        Your SHIP balance determines your discount tier. The more you hold, the less you pay — automatically applied at checkout.
-                    </p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {DISCOUNT_TIERS.map((t, i) => {
-                            const icons = ['🧭', '⛵', '🚢', '⚓'];
-                            const colors = [
-                                'border-white/10 bg-white/5',
-                                'border-blue-500/30 bg-blue-500/5',
-                                'border-purple-500/30 bg-purple-500/5',
-                                'border-amber-500/30 bg-amber-500/5',
-                            ];
-                            const textColors = ['text-gray-400', 'text-blue-400', 'text-purple-400', 'text-amber-400'];
-                            const active = t.label === tier.label;
-                            return (
-                                <div key={t.label} className={`p-6 rounded-[2rem] border ${colors[i]} ${active ? 'ring-2 ring-brand' : ''} transition-all`}>
-                                    <div className="text-3xl mb-4">{icons[i]}</div>
-                                    <div className={`text-lg font-black uppercase ${textColors[i]} mb-1`}>{t.label}</div>
-                                    {t.minShip > 0
-                                        ? <div className="text-[10px] text-gray-500 font-bold mb-3">Hold {t.minShip.toLocaleString()}+ SHIP</div>
-                                        : <div className="text-[10px] text-gray-500 font-bold mb-3">Any Balance</div>
-                                    }
-                                    <div className={`text-3xl font-black ${t.discount > 0 ? 'text-brand' : 'text-gray-600'}`}>
-                                        {t.discount > 0 ? `-${t.discount}%` : 'No Discount'}
-                                    </div>
-                                    {active && <div className="text-[9px] font-black text-brand uppercase tracking-widest mt-2">← Your Tier</div>}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
             </div>
         </div>
     );

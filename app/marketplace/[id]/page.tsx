@@ -32,6 +32,7 @@ export default function ProductDetailPage() {
     const [purchasing, setPurchasing] = useState(false);
     const [purchased, setPurchased] = useState(false);
     const [deliveryUrl, setDeliveryUrl] = useState<string | null>(null);
+    const [txSignature, setTxSignature] = useState<string | null>(null);
 
     const tier = [...DISCOUNT_TIERS].reverse().find(t => shipBalance >= t.minShip) || DISCOUNT_TIERS[0];
     const finalPrice = product ? Math.round(product.priceShip * (1 - tier.discount / 100)) : 0;
@@ -54,16 +55,6 @@ export default function ProductDetailPage() {
         const fetchBalance = async () => {
             if (!wallet) return;
             try {
-                // Surgical Direct Link for the user's confirmed account
-                if (wallet.publicKey.toBase58() === "88G5iPXHhwRnmdEcVckTBD8ny1M7cD3n5rdk9QD1ingn") {
-                    const directAcc = new PublicKey("AAUjUReHMXzjKWqUB7ZJMw8napsWJFGqXtJonyK4bhDT");
-                    const directRes = await connection.getTokenAccountBalance(directAcc, 'confirmed');
-                    if (directRes.value.uiAmount !== null) {
-                        setShipBalance(directRes.value.uiAmount);
-                        return;
-                    }
-                }
-
                 const [ataStandard, ata2022] = await Promise.all([
                     getAssociatedTokenAddress(SHIP_TOKEN_MINT, wallet.publicKey, false, TOKEN_PROGRAM_ID),
                     getAssociatedTokenAddress(SHIP_TOKEN_MINT, wallet.publicKey, false, TOKEN_2022_PROGRAM_ID)
@@ -95,6 +86,7 @@ export default function ProductDetailPage() {
                 if (snap.exists()) {
                     setPurchased(true);
                     setDeliveryUrl(snap.data().deliveryUrl);
+                    setTxSignature(snap.data().txSignature);
                 }
             } catch { }
         };
@@ -178,6 +170,7 @@ export default function ProductDetailPage() {
 
             setPurchased(true);
             setDeliveryUrl(product.deliveryUrl);
+            setTxSignature(sig);
             toast.success('Purchase complete! Access unlocked 🎉', { id: tid });
         } catch (err: any) {
             console.error(err);
@@ -197,7 +190,7 @@ export default function ProductDetailPage() {
     if (!product) return null;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 p-4 md:p-10">
+        <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 p-4 md:p-6">
             <div className="max-w-5xl mx-auto">
                 <Link href="/marketplace" className="inline-flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-brand transition-colors mb-8">
                     ← Back to Marketplace
@@ -207,12 +200,16 @@ export default function ProductDetailPage() {
                     {/* Left — Product Info */}
                     <div className="lg:col-span-3 space-y-8">
                         {/* Cover */}
-                        <div className="bg-white dark:bg-zinc-900 rounded-[3rem] border border-gray-100 dark:border-zinc-800 p-16 flex items-center justify-center text-8xl shadow-sm">
-                            {product.icon}
+                        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 flex items-center justify-center text-6xl shadow-sm overflow-hidden h-[400px]">
+                            {product.coverImage ? (
+                                <img src={product.coverImage} className="w-full h-full object-cover" alt={product.title} />
+                            ) : (
+                                product.icon
+                            )}
                         </div>
 
                         {/* Details */}
-                        <div className="bg-white dark:bg-zinc-900 rounded-[3rem] border border-gray-100 dark:border-zinc-800 p-10 shadow-sm">
+                        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 p-6 shadow-sm">
                             <div className="flex items-center gap-3 mb-4">
                                 <span className="text-[10px] font-black px-3 py-1.5 bg-brand/10 text-brand rounded-full uppercase tracking-wider">
                                     {product.category}
@@ -220,7 +217,7 @@ export default function ProductDetailPage() {
                                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{product.totalSales} sold</span>
                             </div>
 
-                            <h1 className="text-4xl font-black italic tracking-tighter uppercase text-gray-900 dark:text-white mb-6">
+                            <h1 className="text-2xl font-black italic tracking-tighter uppercase text-gray-900 dark:text-white mb-6">
                                 {product.title}
                             </h1>
 
@@ -246,11 +243,11 @@ export default function ProductDetailPage() {
 
                     {/* Right — Purchase Panel */}
                     <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-zinc-900 rounded-[3rem] p-10 border border-white/5 sticky top-24">
+                        <div className="bg-zinc-900 rounded-xl p-6 border border-white/5 sticky top-24">
                             <div className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-6">Marketplace Price</div>
 
                             <div className="mb-8">
-                                <div className="text-5xl font-black text-white tabular-nums">
+                                <div className="text-3xl font-black text-white tabular-nums">
                                     {finalPrice.toLocaleString()}
                                     <span className="text-brand text-2xl ml-2">SHIP</span>
                                 </div>
@@ -290,6 +287,16 @@ export default function ProductDetailPage() {
                                     >
                                         Access Product →
                                     </a>
+                                    {txSignature && (
+                                        <a
+                                            href={`https://solscan.io/tx/${txSignature}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="block text-center text-[9px] font-black text-gray-500 uppercase tracking-widest hover:text-brand transition-colors pt-2"
+                                        >
+                                            View on Solscan ⛓️
+                                        </a>
+                                    )}
                                 </div>
                             ) : (
                                 <button
