@@ -2,23 +2,31 @@
 
 import Link from "next/link";
 import { DISCOUNT_TIERS } from "@/types/database";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <div className="flex flex-col page-fade-in bg-mesh overflow-hidden min-h-screen">
       {/* Hero Section */}
-      <div className="relative flex flex-col items-center justify-center text-center px-6 w-full max-w-7xl mx-auto pt-32 pb-24 md:pt-20 md:pb-20">
+      <div className="relative flex flex-col items-center justify-center text-center px-6 w-full max-w-7xl mx-auto pt-14 pb-24 md:pt-10 md:pb-20">
         {/* Ambient Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] bg-brand/5 rounded-full blur-[140px] pointer-events-none" />
 
-        <div className="relative z-10 space-y-12">
-          <div className="inline-flex items-center gap-3 px-6 py-2 glass rounded-full border border-white/10">
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse shadow-glow" />
-            <span className="text-[10px] font-black text-brand uppercase tracking-[0.4em]">Powered by $SHIP</span>
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-3 ">
+            <div className="w-32 h-32 overflow-hidden">
+              <Image
+                src="/ship.png"
+                alt="SHIP"
+                className="w-full h-full object-contain"
+                width={500}
+                height={500}
+              />
+            </div>
           </div>
 
           <div className="space-y-4">
-            <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase leading-[0.8] title-reveal">
+            <h1 className="text-4xl md:text-7xl font-black italic tracking-tighter uppercase leading-[0.8] title-reveal">
               Ship <span className="text-brand text-glow">Market</span>
             </h1>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-2xl mb-10 leading-relaxed">
