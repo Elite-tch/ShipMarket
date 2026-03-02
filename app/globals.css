@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-brand-50: #eefaf3;
+  --color-brand-100: #d6f3e1;
+  --color-brand-200: #b0e8c8;
+  --color-brand-300: #80d4aa;
+  --color-brand-400: #5dcd90;
+  /* Brand Color */
+  --color-brand-500: #34b372;
+  --color-brand-600: #248e56;
+  --color-brand-700: #1e7046;
+  --color-brand-800: #195b3a;
+  --color-brand-900: #144b31;
+  --color-brand: var(--color-brand-400);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
+
+/* Override default Solana Wallet Adapter button styling to match brand */
+.wallet-adapter-button-trigger,
+.wallet-adapter-button {
+  background-color: var(--color-brand) !important;
+  transition: background-color 0.2s ease-in-out !important;
+}
+
+.wallet-adapter-button-trigger:hover,
+.wallet-adapter-button:not([disabled]):hover {
+  background-color: var(--color-brand-600) !important;
+}
+
+/* Hide number input spinners (Bespoke UI) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
