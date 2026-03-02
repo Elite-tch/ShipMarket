@@ -4,18 +4,27 @@ import * as admin from "firebase-admin";
 // Example: FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n..."
 if (!admin.apps.length) {
     try {
+        let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+        if (privateKey) {
+            // Handle quotes if present
+            if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+                privateKey = privateKey.substring(1, privateKey.length - 1);
+            }
+            // Replace literal \n with actual newlines
+            privateKey = privateKey.replace(/\\n/g, '\n');
+        }
+
         admin.initializeApp({
             credential: admin.credential.cert({
                 projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
                 clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                // Format the private key cleanly on Vercel/Local
-                privateKey: process.env.FIREBASE_PRIVATE_KEY
-                    ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n").replace(/['"]/g, "").trim()
-                    : undefined,
+                privateKey: privateKey,
             }),
         });
+        console.log("Firebase Admin Initialized Successfully");
     } catch (error) {
-        console.log("Firebase admin initialization error", error);
+        console.error("Firebase admin initialization error:", error);
     }
 }
 

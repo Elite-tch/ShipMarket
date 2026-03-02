@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
-import { useAuth } from '@/contexts/AuthContext';
+
 import { Product, ProductCategory, PLATFORM_FEE_PCT } from '@/types/database';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebaseClient';
@@ -22,7 +22,6 @@ const CATEGORIES: { id: ProductCategory; label: string; emoji: string }[] = [
 
 export default function ListProductPage() {
     const wallet = useAnchorWallet();
-    const { user } = useAuth();
     const router = useRouter();
 
     const [title, setTitle] = useState('');
@@ -35,7 +34,7 @@ export default function ListProductPage() {
     const [isListing, setIsListing] = useState(false);
 
     const handleList = async () => {
-        if (!wallet || !user) return toast.error('Connect wallet and sign in first.');
+        if (!wallet) return toast.error('Connect wallet first.');
         if (!title.trim()) return toast.error('Product name is required.');
         if (!description.trim()) return toast.error('Description is required.');
         if (!deliveryUrl.trim()) return toast.error('Delivery URL is required (where buyers get access).');
@@ -72,7 +71,7 @@ export default function ListProductPage() {
         }
     };
 
-    if (!wallet || !user) {
+    if (!wallet) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-10 text-center">
                 <div className="text-5xl mb-6">🔐</div>

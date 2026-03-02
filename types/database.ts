@@ -1,12 +1,8 @@
-export type UserRole = 'explorer' | 'creator' | 'steward';
+
 
 export interface User {
     id: string;
     walletAddress: string;
-    role: UserRole;
-    level: number;
-    xp: number;
-    totalTokensEarned: number;
     createdAt: Date;
     updatedAt: Date;
     twitterHandle?: string;
