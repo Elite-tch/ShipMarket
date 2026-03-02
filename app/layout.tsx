@@ -32,7 +32,7 @@ export default function RootLayout({
           <AuthProvider>
             <Toaster position="bottom-right" reverseOrder={false} />
             <Navbar />
-            <main className="flex-1 w-full bg-gray-50 dark:bg-zinc-950 flex flex-col">
+            <main className="flex-1 w-full bg-gray-50 dark:bg-zinc-950 flex flex-col pb-24 md:pb-0">
               {children}
             </main>
             <Footer />
